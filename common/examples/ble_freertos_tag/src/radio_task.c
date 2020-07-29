@@ -147,74 +147,6 @@ static wsfBufPoolDesc_t g_psPoolDescriptors[WSF_BUF_POOLS] =
 
 void radio_timer_handler(void);
 
-
-
-//*****************************************************************************
-//
-// Poll the buttons.
-//
-//*****************************************************************************
-void
-button_handler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
-{
-    //
-    // Restart the button timer.
-    //
-    WsfTimerStartMs(&ButtonTimer, 10);
-
-#ifdef AM_BSP_NUM_BUTTONS
-    //
-    // Every time we get a button timer tick, check all of our buttons.
-    //
-    am_devices_button_array_tick(am_bsp_psButtons, AM_BSP_NUM_BUTTONS);
-
-    //
-    // If we got a a press, do something with it.
-    //
-    if ( am_devices_button_released(am_bsp_psButtons[0]) )
-    {
-        am_util_debug_printf("Got Button 0 Press\n");
-        AppUiBtnTest(APP_UI_BTN_1_SHORT);
-    }
-
-    if ( am_devices_button_released(am_bsp_psButtons[1]) )
-    {
-        am_util_debug_printf("Got Button 1 Press\n");
-        AppUiBtnTest(APP_UI_BTN_1_SHORT);
-    }
-
-    if ( am_devices_button_released(am_bsp_psButtons[2]) )
-    {
-        am_util_debug_printf("Got Button 2 Press\n");
-    }
-#endif // AM_BSP_NUM_BUTTONS
-}
-
-
-
-//*****************************************************************************
-//
-// Sets up a button interface.
-//
-//*****************************************************************************
-void
-setup_buttons(void)
-{
-#ifdef AM_BSP_NUM_BUTTONS
-    //
-    // Enable the buttons for user interaction.
-    //
-    am_devices_button_array_init(am_bsp_psButtons, AM_BSP_NUM_BUTTONS);
-
-    //
-    // Start a timer.
-    //
-    ButtonTimer.handlerId = ButtonHandlerId;
-    WsfTimerStartSec(&ButtonTimer, 2);
-#endif // AM_BSP_NUM_BUTTONS
-}
-
-
 //*****************************************************************************
 //
 // Initialization for the ExactLE stack.
@@ -267,30 +199,28 @@ exactle_stack_init(void)
     DmPrivInit();
     DmHandlerInit(handlerId);
 
-    handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
-    L2cSlaveHandlerInit(handlerId);
-    L2cInit();
-    L2cSlaveInit();
+    // handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
+    // L2cSlaveHandlerInit(handlerId);
+    // L2cInit();
+    // L2cSlaveInit();
 
-    handlerId = WsfOsSetNextHandler(AttHandler);
-    AttHandlerInit(handlerId);
-    AttsInit();
-    AttsIndInit();
-    AttcInit();
+    // handlerId = WsfOsSetNextHandler(AttHandler);
+    // AttHandlerInit(handlerId);
+    // AttsInit();
+    // AttsIndInit();
+    // AttcInit();
 
-    handlerId = WsfOsSetNextHandler(SmpHandler);
-    SmpHandlerInit(handlerId);
-    SmprInit();
-    SmprScInit();
-    HciSetMaxRxAclLen(251);
+    // handlerId = WsfOsSetNextHandler(SmpHandler);
+    // SmpHandlerInit(handlerId);
+    // SmprInit();
+    // SmprScInit();
+    // HciSetMaxRxAclLen(251);
 
-    handlerId = WsfOsSetNextHandler(AppHandler);
-    AppHandlerInit(handlerId);
+    // handlerId = WsfOsSetNextHandler(AppHandler);
+    // AppHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(TagHandler);
     TagHandlerInit(handlerId);
-
-    ButtonHandlerId = WsfOsSetNextHandler(button_handler);
 
     handlerId = WsfOsSetNextHandler(HciDrvHandler);
     HciDrvHandlerInit(handlerId);
@@ -376,12 +306,6 @@ RadioTask(void *pvParameters)
     // Initialize the main ExactLE stack.
     //
     exactle_stack_init();
-
-    //
-    // Prep the buttons for use
-    //
-
-    setup_buttons();
 
     //
     // Start the "Tag" profile.
